@@ -6,6 +6,8 @@ const router = express.Router();
 const port = process.env.PORT || 1337;
 const dbUri = process.env.dbUri;
 
+const userRouter = require('./src/routes/user');
+
 mongoose.connect(dbUri, { useNewUrlParser: true })
   .then(() => {
     const app = express();
@@ -22,4 +24,6 @@ mongoose.connect(dbUri, { useNewUrlParser: true })
     const server = app.listen(port, () => {
       console.log(`Server started on port ${port}`);
     });
+
+    router.use('/user', userRouter);
   });
