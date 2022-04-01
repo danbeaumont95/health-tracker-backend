@@ -1,6 +1,5 @@
 const { object, string } = require('yup');
 
-
 exports.createUserSessionSchema = object({
   body: object({
     email: string()

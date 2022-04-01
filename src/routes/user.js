@@ -1,5 +1,7 @@
 const expres = require('express');
-const { getUserHandler, createUserHandler, getAllUsersHandler, createUserSessionHandler } = require('../controllers/user');
+const {
+  getUserHandler, createUserHandler, getAllUsersHandler, createUserSessionHandler,
+} = require('../controllers/user');
 const { createUserSessionSchema } = require('../schema/user');
 const { validateRequest } = require('../middleware/validateRequest');
 
