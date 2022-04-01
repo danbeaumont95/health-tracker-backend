@@ -4,17 +4,18 @@ const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true },
-    firstName: { type: String, required: true, },
-    lastName: { type: String, required: true, },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     password: { type: String, required: true },
     profilePicture: { type: String },
     areasToWorkOn: { type: Array, default: [] },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
+// eslint-disable-next-line func-names
 userSchema.pre('save', async function (next) {
   const user = this;
   if (!user.isModified('password')) {

@@ -1,7 +1,7 @@
-const { User } = require("../models/User");
 const mongoose = require('mongoose');
-const { omit } = require("lodash");
-const { UserSession } = require("../models/UserSession");
+const { omit } = require('lodash');
+const { User } = require('../models/User');
+const { UserSession } = require('../models/UserSession');
 
 exports.getUser = async (_id) => {
   const user = await User.findById(new mongoose.Types.ObjectId(_id));
@@ -20,7 +20,7 @@ exports.getAllUsers = async () => {
 
 exports.validatePassword = async ({
   email,
-  password
+  password,
 }) => {
   const user = await User.findOne({ email });
 

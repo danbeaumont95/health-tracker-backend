@@ -1,12 +1,14 @@
-const { getUser, createUser, getAllUsers, createUserSession } = require("../service/user");
-const { signJwt } = require("../utils/jwt");
+const {
+  getUser, createUser, getAllUsers, createUserSession,
+} = require('../service/user');
+const { signJwt } = require('../utils/jwt');
 const { validatePassword } = require('../service/user');
 
 exports.getAllUsersHandler = async (req, res) => {
   const respBody = {
     success: false,
     message: '',
-    data: {}
+    data: {},
   };
   try {
     const users = await getAllUsers();
@@ -16,7 +18,6 @@ exports.getAllUsersHandler = async (req, res) => {
     }
     respBody.success = true;
     respBody.data = users;
-
   } catch (error) {
     respBody.message = '[BadRequest] User not found';
   }
@@ -27,7 +28,7 @@ exports.getUserHandler = async (req, res) => {
   const respBody = {
     success: false,
     message: '',
-    data: {}
+    data: {},
   };
   try {
     const { _id } = req.params;
@@ -50,7 +51,7 @@ exports.createUserHandler = async (req, res) => {
   const respBody = {
     success: false,
     message: '',
-    data: {}
+    data: {},
   };
   try {
     const { body } = req;
@@ -77,7 +78,7 @@ exports.createUserSessionHandler = async (req, res) => {
   const respBody = {
     success: false,
     message: '',
-    data: {}
+    data: {},
   };
   try {
     const user = await validatePassword(req.body);
@@ -87,14 +88,17 @@ exports.createUserSessionHandler = async (req, res) => {
       return res.status(200).json(respBody);
     }
 
+    // eslint-disable-next-line no-underscore-dangle
     const session = await createUserSession(user._id, req.get('user-agent') || '');
 
     const accessToken = signJwt(
+      // eslint-disable-next-line no-underscore-dangle
       { ...user, session: session._id },
       { expiresIn: process.env.accessTokenTtl },
     );
 
     const refreshToken = signJwt(
+      // eslint-disable-next-line no-underscore-dangle
       { ...user, session: session._id },
       { expiresIn: process.env.refreshTokenTtl },
     );
@@ -103,10 +107,8 @@ exports.createUserSessionHandler = async (req, res) => {
 
     respBody.success = true;
     respBody.data = { accessToken, refreshToken, _id };
-
   } catch (error) {
     respBody.message = '[BadRequest] User not found';
   }
   return res.status(200).json(respBody);
-
 };
