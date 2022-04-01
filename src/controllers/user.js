@@ -1,4 +1,6 @@
-const { getUser, createUser, getAllUsers } = require("../service/user");
+const { getUser, createUser, getAllUsers, createUserSession } = require("../service/user");
+const { signJwt } = require("../utils/jwt");
+const { validatePassword } = require('../service/user');
 
 exports.getAllUsersHandler = async (req, res) => {
   const respBody = {
@@ -69,4 +71,42 @@ exports.createUserHandler = async (req, res) => {
     respBody.message = '[BadRequest] User not found';
   }
   return res.status(200).json(respBody);
+};
+
+exports.createUserSessionHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {}
+  };
+  try {
+    const user = await validatePassword(req.body);
+
+    if (!user) {
+      respBody.message = '[BadRequest] Invalid email or password';
+      return res.status(200).json(respBody);
+    }
+
+    const session = await createUserSession(user._id, req.get('user-agent') || '');
+
+    const accessToken = signJwt(
+      { ...user, session: session._id },
+      { expiresIn: process.env.accessTokenTtl },
+    );
+
+    const refreshToken = signJwt(
+      { ...user, session: session._id },
+      { expiresIn: process.env.refreshTokenTtl },
+    );
+
+    const { _id } = user;
+
+    respBody.success = true;
+    respBody.data = { accessToken, refreshToken, _id };
+
+  } catch (error) {
+    respBody.message = '[BadRequest] User not found';
+  }
+  return res.status(200).json(respBody);
+
 };
