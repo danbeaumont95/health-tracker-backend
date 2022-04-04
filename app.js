@@ -2,11 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const cors = require('cors');
+
 const router = express.Router();
 const port = process.env.PORT || 1337;
-const dbUri = process.env.dbUri;
+const { dbUri } = process.env;
 
 const userRouter = require('./src/routes/user');
+const { deserializeUser } = require('./src/middleware/deserializeUser');
 
 mongoose.connect(dbUri, { useNewUrlParser: true })
   .then(() => {
@@ -14,6 +16,7 @@ mongoose.connect(dbUri, { useNewUrlParser: true })
     app.use(cors());
     app.options('*', cors());
     app.use(express.json());
+    app.use(deserializeUser);
     app.use(express.urlencoded({ extended: false }));
 
     app.use('/api', router);
