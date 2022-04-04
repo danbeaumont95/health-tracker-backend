@@ -3,6 +3,7 @@ const {
 } = require('../service/user');
 const { signJwt } = require('../utils/jwt');
 const { validatePassword } = require('../service/user');
+const { User } = require('../models/User');
 
 exports.getAllUsersHandler = async (req, res) => {
   const respBody = {
@@ -109,6 +110,34 @@ exports.createUserSessionHandler = async (req, res) => {
     respBody.data = { accessToken, refreshToken, _id };
   } catch (error) {
     respBody.message = '[BadRequest] User not found';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.addAreaToWorkOnHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const allowedAreas = { physical: 'physical', mental: 'mental' };
+    const { area } = req.body;
+    if (!allowedAreas[area.toLowerCase()]) {
+      respBody.message = '[BadRequest] Invalid area';
+      return res.status(200).json(respBody);
+    }
+
+    await User.findByIdAndUpdate({ _id }, {
+      $push: {
+        areasToWorkOn: area,
+      },
+    });
+    respBody.success = true;
+    respBody.message = `[Success] ${area} added to your profile`;
+  } catch (error) {
+    respBody.message = '[BadRequest] Error adding area to work on';
   }
   return res.status(200).json(respBody);
 };
