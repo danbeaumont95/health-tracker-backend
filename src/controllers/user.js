@@ -1,5 +1,5 @@
 const {
-  getUser, createUser, getAllUsers, createUserSession,
+  getUser, createUser, getAllUsers, createUserSession, addMeal,
 } = require('../service/user');
 const { signJwt } = require('../utils/jwt');
 const { validatePassword } = require('../service/user');
@@ -136,6 +136,35 @@ exports.addAreaToWorkOnHandler = async (req, res) => {
     });
     respBody.success = true;
     respBody.message = `[Success] ${area} added to your profile`;
+  } catch (error) {
+    respBody.message = '[BadRequest] Error adding area to work on';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.addMealHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const { body: { mealType, meal } } = req;
+
+    const allowedMeals = ['breakfast', 'lunch', 'dinner', 'snack'];
+    const mealFound = allowedMeals.includes(mealType.toLowerCase());
+    if (!mealFound) {
+      throw new Error('[BadRequest] Invalid meal type');
+    }
+    const timestamp = new Date().toISOString();
+    const newMeal = await addMeal(_id, meal, mealType, timestamp);
+
+    if (!newMeal) {
+      throw new Error('[BadRequest] Error creating meal');
+    }
+    respBody.success = true;
+    respBody.message = '[Success] Meal added';
   } catch (error) {
     respBody.message = '[BadRequest] Error adding area to work on';
   }
