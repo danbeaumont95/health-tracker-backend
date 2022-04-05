@@ -3,6 +3,7 @@ const { omit, get } = require('lodash');
 const { User } = require('../models/User');
 const { UserSession } = require('../models/UserSession');
 const { decode, signJwt } = require('../utils/jwt');
+const { MealTracker } = require('../models/MealTracker');
 
 exports.getUser = async (_id) => {
   const user = await User.findById(new mongoose.Types.ObjectId(_id));
@@ -79,4 +80,27 @@ exports.reIssueAccessToken = async ({
 
   const accessToken = createAccessToken({ user, session });
   return accessToken;
+};
+
+exports.addMeal = async (id, meal, type, timestamp) => {
+  const alreadyHasMeals = await MealTracker.findOne({ user: id });
+  const mealObj = {
+    mealType: type, food: meal, date: timestamp,
+  };
+
+  if (!alreadyHasMeals) {
+    const newMeal = await MealTracker.create({
+      user: id,
+      meals: mealObj,
+    });
+    return newMeal;
+  }
+  const { _id } = alreadyHasMeals;
+
+  const updatedUserMeals = await MealTracker.findByIdAndUpdate({ _id }, {
+    $push: {
+      meals: mealObj,
+    },
+  });
+  return updatedUserMeals;
 };
