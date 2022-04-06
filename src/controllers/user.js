@@ -1,5 +1,5 @@
 const {
-  getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals,
+  getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals, getMealsByType,
 } = require('../service/user');
 const { signJwt } = require('../utils/jwt');
 const { validatePassword } = require('../service/user');
@@ -195,6 +195,39 @@ exports.getallMealsHandler = async (req, res) => {
 
     respBody.success = true;
     respBody.data = formattedMeals;
+  } catch (error) {
+    respBody.message = '[BadRequest] Error finding meals';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.getMealsByTypeHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const { type } = req.params;
+
+    const allowedParams = ['breakfast', 'lunch', 'dinner', 'snack'];
+    const isTypeAllowed = allowedParams.includes(type.toLowerCase());
+
+    if (!isTypeAllowed) {
+      respBody.message = '[BadRequest] Invalid meal type';
+      return res.status(200).json(respBody);
+    }
+
+    const meals = await getMealsByType(_id, type);
+
+    if (!meals.flat().length) {
+      respBody.message = `[BadRequest] No meals found with type ${type}`;
+      return res.status(200).json(respBody);
+    }
+
+    respBody.success = true;
+    respBody.data = meals;
   } catch (error) {
     respBody.message = '[BadRequest] Error finding meals';
   }
