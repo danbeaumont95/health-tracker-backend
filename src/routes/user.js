@@ -1,7 +1,7 @@
 const expres = require('express');
 const {
   getUserHandler, createUserHandler, getAllUsersHandler, createUserSessionHandler,
-  addAreaToWorkOnHandler, addMealHandler,
+  addAreaToWorkOnHandler, addMealHandler, getallMealsHandler,
 } = require('../controllers/user');
 const { createUserSessionSchema } = require('../schema/user');
 const { validateRequest } = require('../middleware/validateRequest');
@@ -15,5 +15,6 @@ router.get('/:_id', getUserHandler);
 router.post('/session', validateRequest(createUserSessionSchema), createUserSessionHandler);
 router.put('/details/area', [requiresUser], addAreaToWorkOnHandler);
 router.post('/meal', [requiresUser], addMealHandler);
+router.get('/meals/all', [requiresUser], getallMealsHandler);
 
 module.exports = router;
