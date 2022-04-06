@@ -106,3 +106,8 @@ exports.addMeal = async (id, meal, type, painLevel, timestamp) => {
 };
 
 exports.getAllMeals = async (_id) => (MealTracker.find({ user: _id }).select('meals'));
+
+exports.getMealsByType = async (_id, type) => {
+  const meals = await MealTracker.find({ user: _id });
+  return meals.map((el) => el.meals.filter((els) => els.mealType === type));
+};
