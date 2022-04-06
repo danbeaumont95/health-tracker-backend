@@ -1,5 +1,5 @@
 const {
-  getUser, createUser, getAllUsers, createUserSession, addMeal,
+  getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals,
 } = require('../service/user');
 const { signJwt } = require('../utils/jwt');
 const { validatePassword } = require('../service/user');
@@ -150,7 +150,7 @@ exports.addMealHandler = async (req, res) => {
   };
   try {
     const { _id } = req.user;
-    const { body: { mealType, meal } } = req;
+    const { body: { mealType, meal, painLevel } } = req;
 
     const allowedMeals = ['breakfast', 'lunch', 'dinner', 'snack'];
     const mealFound = allowedMeals.includes(mealType.toLowerCase());
@@ -158,7 +158,7 @@ exports.addMealHandler = async (req, res) => {
       throw new Error('[BadRequest] Invalid meal type');
     }
     const timestamp = new Date().toISOString();
-    const newMeal = await addMeal(_id, meal, mealType, timestamp);
+    const newMeal = await addMeal(_id, meal, mealType, painLevel, timestamp);
 
     if (!newMeal) {
       throw new Error('[BadRequest] Error creating meal');
@@ -166,7 +166,37 @@ exports.addMealHandler = async (req, res) => {
     respBody.success = true;
     respBody.message = '[Success] Meal added';
   } catch (error) {
-    respBody.message = '[BadRequest] Error adding area to work on';
+    respBody.message = '[BadRequest] Error adding meal';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.getallMealsHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const allMeals = await getAllMeals(_id);
+
+    if (!allMeals) {
+      throw new Error('[BadRequest] Error finding meals');
+    }
+
+    if (!allMeals.length) {
+      respBody.success = true;
+      respBody.message = '[Success] No meals added yet';
+      return res.status(200).json(respBody);
+    }
+
+    const formattedMeals = allMeals.map((el) => el.meals)[0];
+
+    respBody.success = true;
+    respBody.data = formattedMeals;
+  } catch (error) {
+    respBody.message = '[BadRequest] Error finding meals';
   }
   return res.status(200).json(respBody);
 };

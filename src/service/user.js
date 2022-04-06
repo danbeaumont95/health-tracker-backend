@@ -82,10 +82,10 @@ exports.reIssueAccessToken = async ({
   return accessToken;
 };
 
-exports.addMeal = async (id, meal, type, timestamp) => {
+exports.addMeal = async (id, meal, type, painLevel, timestamp) => {
   const alreadyHasMeals = await MealTracker.findOne({ user: id });
   const mealObj = {
-    mealType: type, food: meal, date: timestamp,
+    mealType: type, food: meal, date: timestamp, painLevel,
   };
 
   if (!alreadyHasMeals) {
@@ -104,3 +104,5 @@ exports.addMeal = async (id, meal, type, timestamp) => {
   });
   return updatedUserMeals;
 };
+
+exports.getAllMeals = async (_id) => (MealTracker.find({ user: _id }).select('meals'));
