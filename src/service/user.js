@@ -111,3 +111,19 @@ exports.getMealsByType = async (_id, type) => {
   const meals = await MealTracker.find({ user: _id });
   return meals.map((el) => el.meals.filter((els) => els.mealType === type));
 };
+
+// eslint-disable-next-line no-nested-ternary
+const getPainRange = (pain) => (pain === 'low' ? [0, 3] : pain === 'medium' ? [4, 6] : [7, 10]);
+
+exports.getMealsByPainLevel = async (_id, pain) => {
+  const painRange = getPainRange(pain);
+
+  const meals = await MealTracker.find({ user: _id });
+
+  const mealsInPainLevelRange = meals
+    .map((el) => el.meals
+      .filter((els) => els.painLevel >= painRange[0]
+        && els.painLevel <= painRange[1]));
+
+  return mealsInPainLevelRange;
+};

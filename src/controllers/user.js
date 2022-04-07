@@ -1,5 +1,6 @@
 const {
   getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals, getMealsByType,
+  getMealsByPainLevel,
 } = require('../service/user');
 const { signJwt } = require('../utils/jwt');
 const { validatePassword } = require('../service/user');
@@ -226,6 +227,39 @@ exports.getMealsByTypeHandler = async (req, res) => {
       return res.status(200).json(respBody);
     }
 
+    respBody.success = true;
+    respBody.data = meals;
+  } catch (error) {
+    respBody.message = '[BadRequest] Error finding meals';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.getAllMealsByPainLevelHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const { pain } = req.params;
+    const allowedParams = ['low', 'medium', 'high'];
+    const isPainTypeAllowed = allowedParams.includes(pain.toLowerCase());
+    if (!isPainTypeAllowed) {
+      respBody.message = '[BadRequest] Invalid pain level type';
+      return res.status(200).json(respBody);
+    }
+
+    const meals = await getMealsByPainLevel(_id, pain);
+    if (!meals) {
+      respBody.message = '[BadRequest] Error getting meals';
+      return res.status(200).json(respBody);
+    }
+    if (!meals.length) {
+      respBody.message = `[BadRequest] No meals found with pain level ${pain}`;
+      return res.status(200).json(respBody);
+    }
     respBody.success = true;
     respBody.data = meals;
   } catch (error) {
