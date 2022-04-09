@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     profilePicture: { type: String },
     areasToWorkOn: { type: Array, default: [] },
+    phoneNumber: { type: String, default: '' },
   },
   {
     timestamps: true,
