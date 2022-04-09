@@ -127,3 +127,17 @@ exports.getMealsByPainLevel = async (_id, pain) => {
 
   return mealsInPainLevelRange;
 };
+
+exports.updateUser = async (_id, details) => {
+  try {
+    const updatedValueName = Object.keys(details);
+    const formattedDetails = Object
+      .assign(...updatedValueName.map((key) => ({ [key]: details[key].to })));
+
+    const updatedUser = await User.findByIdAndUpdate({ _id }, formattedDetails, { new: true });
+
+    return updatedUser;
+  } catch (error) {
+    throw new Error('[BadRequest] Error updating user');
+  }
+};

@@ -1,10 +1,14 @@
+const { get } = require('lodash');
 const {
   getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals, getMealsByType,
-  getMealsByPainLevel,
+  getMealsByPainLevel, updateUser,
 } = require('../service/user');
 const { signJwt } = require('../utils/jwt');
+const { checkIfDetailsChanged } = require('../utils/helpers');
 const { validatePassword } = require('../service/user');
 const { User } = require('../models/User');
+const { decode } = require('../utils/jwt');
+const { reIssueAccessToken } = require('../service/user');
 
 exports.getAllUsersHandler = async (req, res) => {
   const respBody = {
@@ -71,7 +75,7 @@ exports.createUserHandler = async (req, res) => {
     respBody.success = true;
     respBody.data = user;
   } catch (error) {
-    respBody.message = '[BadRequest] User not found';
+    respBody.message = '[BadRequest] Error creating user';
   }
   return res.status(200).json(respBody);
 };
@@ -264,6 +268,107 @@ exports.getAllMealsByPainLevelHandler = async (req, res) => {
     respBody.data = meals;
   } catch (error) {
     respBody.message = '[BadRequest] Error finding meals';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.getMeHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+
+    const user = await getUser(_id);
+
+    if (!user) {
+      respBody.message = '[BadRequest] User not found';
+      return res.status(200).json(respBody);
+    }
+    respBody.success = true;
+    respBody.data = user;
+  } catch (error) {
+    respBody.message = '[BadRequest] Error finding profile';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.refreshTokenHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const accessToken = get(req, 'headers.authorization', '').replace(
+      /^Bearer\s/,
+      '',
+    );
+
+    const refreshToken = get(req, 'headers.x-refresh');
+
+    if (!accessToken) return res.status(401).json({ msg: 'no access token found' });
+    const { decoded, expired } = decode(accessToken);
+
+    if (decoded) {
+      req.user = decoded;
+    }
+    if (expired && refreshToken) {
+      const newAccessToken = await reIssueAccessToken({ refreshToken });
+
+      if (newAccessToken) {
+        res.setHeader('x-access-token', newAccessToken);
+        // eslint-disable-next-line no-shadow
+        const { decoded } = decode(accessToken);
+
+        req.user = decoded;
+        return res.status(200).json({ newAccessToken });
+      }
+    } else {
+      return res.status(200).json([]);
+    }
+  } catch (error) {
+    respBody.message = '[BadRequest] Error refreshing token';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.updateDetailsHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const newUserDetails = req.body;
+
+    const user = await getUser(_id);
+
+    const originalUserDetails = {};
+
+    ({
+      firstName: originalUserDetails.firstName,
+      lastName: originalUserDetails.lastName,
+      email: originalUserDetails.email,
+      phoneNumber: originalUserDetails.phoneNumber,
+    } = user);
+
+    const detailsUpdated = await checkIfDetailsChanged(originalUserDetails, newUserDetails);
+
+    if (!Object.keys(detailsUpdated).length) {
+      respBody.success = true;
+      respBody.message = '[Success] No details were changed';
+      return res.status(200).json(respBody);
+    }
+
+    const updatedUser = await updateUser(_id, detailsUpdated);
+    respBody.success = true;
+    respBody.data = updatedUser;
+  } catch (error) {
+    respBody.message = '[BadRequest] Error refreshing token';
   }
   return res.status(200).json(respBody);
 };
