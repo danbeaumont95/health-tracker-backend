@@ -1,7 +1,7 @@
 const { get } = require('lodash');
 const {
   getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals, getMealsByType,
-  getMealsByPainLevel, updateUser,
+  getMealsByPainLevel, updateUser, changePassword,
 } = require('../service/user');
 const { signJwt } = require('../utils/jwt');
 const { checkIfDetailsChanged } = require('../utils/helpers');
@@ -369,6 +369,30 @@ exports.updateDetailsHandler = async (req, res) => {
     respBody.data = updatedUser;
   } catch (error) {
     respBody.message = '[BadRequest] Error refreshing token';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.updatePasswordHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { email } = req.user;
+
+    const { originalPassword, newPassword } = req.body;
+    const updatedUser = await changePassword(email, originalPassword, newPassword);
+
+    if (!updatedUser) {
+      respBody.message = '[BadRequest] Password does not match';
+      return res.status(200).json(respBody);
+    }
+    respBody.success = true;
+    respBody.message = '[Success] Successfully changed password';
+  } catch (error) {
+    respBody.message = '[BadRequest] Error updateing password';
   }
   return res.status(200).json(respBody);
 };

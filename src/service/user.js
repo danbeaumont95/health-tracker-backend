@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { omit, get } = require('lodash');
+const bcrypt = require('bcrypt');
 const { User } = require('../models/User');
 const { UserSession } = require('../models/UserSession');
 const { decode, signJwt } = require('../utils/jwt');
@@ -35,6 +36,38 @@ exports.validatePassword = async ({
     return false;
   }
   return omit(user.toJSON(), 'password');
+};
+
+exports.changePassword = async (email, password, newPassword) => {
+  const user = await User.findOne({ email });
+
+  const { password: dbPassword } = user;
+  if (!user) {
+    return false;
+  }
+  const isValid = await user.comparePassword(password);
+
+  if (!isValid) {
+    return false;
+  }
+
+  const isMatch = await bcrypt.compare(password, dbPassword);
+
+  if (!isMatch) {
+    throw new Error('[BadRequest] Password does not match');
+  }
+  const salt = await bcrypt.genSalt(+process.env.saltWorkFactor);
+
+  const hash = await bcrypt.hashSync(newPassword, salt);
+
+  const updatedUser = await User.findOneAndUpdate({ email }, {
+    password: hash,
+  });
+
+  if (!updatedUser) {
+    throw new Error('[BadRequest] Error updateing password');
+  }
+  return updatedUser;
 };
 
 exports.createUserSession = async (userId, userAgent) => {
