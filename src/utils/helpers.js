@@ -1,4 +1,4 @@
-exports.checkIfDetailsChanged = async (oldDetails, newDetails) => {
+exports.checkIfDetailsChanged = (oldDetails, newDetails) => {
   const diff = Object.keys(oldDetails).reduce((memo, key) => {
     const attributeBefore = oldDetails[key];
     const attributeAfter = newDetails[key];

@@ -356,7 +356,7 @@ exports.updateDetailsHandler = async (req, res) => {
       phoneNumber: originalUserDetails.phoneNumber,
     } = user);
 
-    const detailsUpdated = await checkIfDetailsChanged(originalUserDetails, newUserDetails);
+    const detailsUpdated = checkIfDetailsChanged(originalUserDetails, newUserDetails);
 
     if (!Object.keys(detailsUpdated).length) {
       respBody.success = true;
