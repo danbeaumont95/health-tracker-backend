@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon --config nodemon.json app.js"
+    "dev": "nodemon --config nodemon.json app.js",
+    "test": "cypress open"
   },
   "keywords": [],
   "author": "",
@@ -24,8 +25,10 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "cypress": "^9.5.4",
     "eslint": "^8.12.0",
     "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-import": "^2.25.4",
     "nodemon": "^2.0.15"
   }
