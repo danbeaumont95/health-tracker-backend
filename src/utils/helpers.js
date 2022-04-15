@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 exports.checkIfDetailsChanged = (oldDetails, newDetails) => {
   const diff = Object.keys(oldDetails).reduce((memo, key) => {
     const attributeBefore = oldDetails[key];
@@ -13,4 +15,20 @@ exports.checkIfDetailsChanged = (oldDetails, newDetails) => {
     return memo;
   }, {});
   return diff;
+};
+
+exports.returnValuesBetween2Dates = (timePeriod, now, date) => {
+  const input = moment(date);
+  return input.isBetween(timePeriod, now) ? date : null;
+};
+
+// Currently only works for week, will probably need to pass in time period and work out nbDays from there
+exports.getAllDatesBetweenTimePeriod = (timePeriod, now) => {
+
+  const nbDays = now.diff(timePeriod, 'days') + 1;
+
+  const result = [...Array(nbDays).keys()]
+    .map(i => (timePeriod.clone().add(i, 'd').startOf('day').format()));
+
+  return result;
 };

@@ -1,8 +1,10 @@
 const { get } = require('lodash');
 const {
   getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals, getMealsByType,
-  getMealsByPainLevel, updateUser, changePassword,
+  getMealsByPainLevel, updateUser, changePassword, getUserPainLevelByTimePeriod
 } = require('../service/user');
+const { MealTracker } = require('../models/MealTracker');
+
 const { signJwt } = require('../utils/jwt');
 const { checkIfDetailsChanged } = require('../utils/helpers');
 const { validatePassword } = require('../service/user');
@@ -395,4 +397,48 @@ exports.updatePasswordHandler = async (req, res) => {
     respBody.message = '[BadRequest] Error updateing password';
   }
   return res.status(200).json(respBody);
+};
+
+exports.getUserPainLevelByTimePeriodHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const { time } = req.params;
+
+    if (time !== 'week' && time !== 'month' && time !== 'year') {
+      respBody.message = '[BadRequest] Invalid time period';
+      return res.status(200).json(respBody);
+    }
+
+    const allMeals = await MealTracker.findOne({ user: _id });
+
+    if (!allMeals) {
+      respBody.message = '[BadRequest] Error finding meals';
+      return res.status(200).json(respBody);
+    }
+
+    const painLevel = await getUserPainLevelByTimePeriod(allMeals, time);
+
+    if (!painLevel) {
+      respBody.message = '[BadRequest] Error getting pain levels';
+      return res.status(200).json(respBody);
+    }
+    respBody.success = true;
+    const labels = Object.keys(painLevel);
+    const painData = Object.values(painLevel).map((el) => Math.round(el * 100) / 100);
+
+    respBody.data = {
+      labels,
+      painData
+    };
+  } catch (error) {
+    respBody.message = '[BadRequest] Error getting pain level for user';
+
+  }
+  return res.status(200).json(respBody);
+
 };

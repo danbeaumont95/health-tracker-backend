@@ -5,6 +5,8 @@ const { User } = require('../models/User');
 const { UserSession } = require('../models/UserSession');
 const { decode, signJwt } = require('../utils/jwt');
 const { MealTracker } = require('../models/MealTracker');
+const moment = require('moment');
+const { returnValuesBetween2Dates, getAllDatesBetweenTimePeriod } = require('../utils/helpers');
 
 exports.getUser = async (_id) => {
   const user = await User.findById(new mongoose.Types.ObjectId(_id));
@@ -173,4 +175,38 @@ exports.updateUser = async (_id, details) => {
   } catch (error) {
     throw new Error('[BadRequest] Error updating user');
   }
+};
+
+exports.getUserPainLevelByTimePeriod = async (allMeals, time) => {
+  try {
+
+    const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd') : time === 'month' ? moment().subtract(1, 'm') : moment().subtract(1, 'y');
+    const now = moment();
+
+    const mealsInTimePeriod = allMeals.meals.filter((el) => (returnValuesBetween2Dates(timePeriod, now, el.date)));
+
+    const datesBetweenTimePeriodAndDate = getAllDatesBetweenTimePeriod(timePeriod, now);
+
+    const painLevelPerDayObject = datesBetweenTimePeriodAndDate.reduce((acc, curr) => (acc[curr] = 0, acc), {});
+
+    // Need to get timestamp of each day in time period, then map through and get average pain level for that day
+    mealsInTimePeriod.map((el) => (painLevelPerDayObject[moment(el.date).startOf('day').format()] += el.painLevel));
+
+    const dates = mealsInTimePeriod.map((el) => {
+      const input = moment(el.date);
+      return input.startOf('day').format();
+    });
+
+    const occurrences = dates.reduce(function (acc, curr) {
+      return acc[curr] ? ++acc[curr] : acc[curr] = 1, acc;
+    }, {});
+
+    Object.entries(occurrences).map((el) => (painLevelPerDayObject[el[0]] /= el[1]));
+
+    return painLevelPerDayObject;
+  } catch (error) {
+    console.error(error, 'error');
+  }
+
+
 };
