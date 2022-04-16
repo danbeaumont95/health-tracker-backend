@@ -37,13 +37,31 @@ describe('returnDateIfBetween2Dates', () => {
 });
 
 describe('getAllDatesBetweenTimePeriod', () => {
-  it('returns dates between 2 dates', () => {
+  it('returns dates between 2 dates with time period week', () => {
     const time = 'week';
-    const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd') : time === 'month' ? moment().subtract(1, 'm') : moment().subtract(1, 'y');
+    const timePeriod = moment().subtract(1, 'w').add(1, 'd');
     const now = moment();
     const dates = getAllDatesBetweenTimePeriod(timePeriod, now);
 
     expect(dates).to.be.a('array');
     expect(dates.length).to.equal(7);
+  });
+  it('returns dates between 2 dates with time period month', () => {
+    const time = 'month';
+    const timePeriod = moment().subtract(1, 'month').add(1, 'd');
+    const now = moment();
+    const dates = getAllDatesBetweenTimePeriod(timePeriod, now);
+
+    expect(dates).to.be.a('array');
+    expect(dates.length).to.equal(31);
+  });
+  it('returns dates between 2 dates with time period month', () => {
+    const time = 'year';
+    const timePeriod = moment().subtract(1, 'y').add(1, 'd');
+    const now = moment();
+    const dates = getAllDatesBetweenTimePeriod(timePeriod, now);
+
+    expect(dates).to.be.a('array');
+    expect(dates.length).to.equal(365);
   });
 });
