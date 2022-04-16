@@ -179,11 +179,11 @@ exports.updateUser = async (_id, details) => {
 
 exports.getUserPainLevelByTimePeriod = async (allMeals, time) => {
   try {
-
-    const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd') : time === 'month' ? moment().subtract(1, 'm') : moment().subtract(1, 'y');
+    const { meals } = allMeals;
+    const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd') : time === 'month' ? moment().subtract(1, 'month') : moment().subtract(1, 'y');
     const now = moment();
 
-    const mealsInTimePeriod = allMeals.meals.filter((el) => (returnDateIfBetween2Dates(timePeriod, now, el.date)));
+    const mealsInTimePeriod = meals.filter((el) => (returnDateIfBetween2Dates(timePeriod, now, el.date)));
 
     const datesBetweenTimePeriodAndDate = getAllDatesBetweenTimePeriod(timePeriod, now);
 

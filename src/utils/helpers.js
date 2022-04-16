@@ -22,9 +22,7 @@ exports.returnDateIfBetween2Dates = (timePeriod, now, date) => {
   return input.isBetween(timePeriod, now) ? date : null;
 };
 
-// Currently only works for week, will probably need to pass in time period and work out nbDays from there
 exports.getAllDatesBetweenTimePeriod = (timePeriod, now) => {
-
   const nbDays = now.diff(timePeriod, 'days') + 1;
 
   const result = [...Array(nbDays).keys()]
