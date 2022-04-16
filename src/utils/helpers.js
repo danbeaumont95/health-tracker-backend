@@ -17,7 +17,7 @@ exports.checkIfDetailsChanged = (oldDetails, newDetails) => {
   return diff;
 };
 
-exports.returnValuesBetween2Dates = (timePeriod, now, date) => {
+exports.returnDateIfBetween2Dates = (timePeriod, now, date) => {
   const input = moment(date);
   return input.isBetween(timePeriod, now) ? date : null;
 };

@@ -6,7 +6,7 @@ const { UserSession } = require('../models/UserSession');
 const { decode, signJwt } = require('../utils/jwt');
 const { MealTracker } = require('../models/MealTracker');
 const moment = require('moment');
-const { returnValuesBetween2Dates, getAllDatesBetweenTimePeriod } = require('../utils/helpers');
+const { returnDateIfBetween2Dates, getAllDatesBetweenTimePeriod } = require('../utils/helpers');
 
 exports.getUser = async (_id) => {
   const user = await User.findById(new mongoose.Types.ObjectId(_id));
@@ -183,7 +183,7 @@ exports.getUserPainLevelByTimePeriod = async (allMeals, time) => {
     const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd') : time === 'month' ? moment().subtract(1, 'm') : moment().subtract(1, 'y');
     const now = moment();
 
-    const mealsInTimePeriod = allMeals.meals.filter((el) => (returnValuesBetween2Dates(timePeriod, now, el.date)));
+    const mealsInTimePeriod = allMeals.meals.filter((el) => (returnDateIfBetween2Dates(timePeriod, now, el.date)));
 
     const datesBetweenTimePeriodAndDate = getAllDatesBetweenTimePeriod(timePeriod, now);
 

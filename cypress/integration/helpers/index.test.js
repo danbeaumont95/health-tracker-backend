@@ -1,4 +1,6 @@
-const { checkIfDetailsChanged } = require('../../../src/utils/helpers');
+/// <reference types="cypress" />
+const { checkIfDetailsChanged, returnDateIfBetween2Dates, getAllDatesBetweenTimePeriod } = require('../../../src/utils/helpers');
+const moment = require('moment');
 
 describe('checkIfDetailsChanged', () => {
   it('returns object of updated details when comparing 2 arrays', () => {
@@ -10,5 +12,38 @@ describe('checkIfDetailsChanged', () => {
     expect(newObject.age.from).to.equal(26);
     expect(newObject.name.to).to.equal('Cloe');
     expect(newObject.age.to).to.equal(23);
+  });
+});
+
+describe('returnDateIfBetween2Dates', () => {
+  it('doenst return null', () => {
+    const timePeriod = moment().subtract(1, 'w').add(1, 'd');
+    const now = moment();
+
+    const date = moment().subtract(2, 'd');
+    const dateWithinPastWeek = returnDateIfBetween2Dates(timePeriod, now, date);
+
+    expect(dateWithinPastWeek).to.not.equal(null);
+  });
+  it('returns null', () => {
+    const timePeriod = moment().subtract(1, 'w').add(1, 'd');
+    const now = moment();
+
+    const date = moment().subtract(1, 'y');
+    const dateNotWithinPastWeek = returnDateIfBetween2Dates(timePeriod, now, date);
+
+    expect(dateNotWithinPastWeek).to.equal(null);
+  });
+});
+
+describe('getAllDatesBetweenTimePeriod', () => {
+  it('returns dates between 2 dates', () => {
+    const time = 'week';
+    const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd') : time === 'month' ? moment().subtract(1, 'm') : moment().subtract(1, 'y');
+    const now = moment();
+    const dates = getAllDatesBetweenTimePeriod(timePeriod, now);
+
+    expect(dates).to.be.a('array');
+    expect(dates.length).to.equal(7);
   });
 });
