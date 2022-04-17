@@ -1,7 +1,8 @@
 const { get } = require('lodash');
 const {
   getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals, getMealsByType,
-  getMealsByPainLevel, updateUser, changePassword, getUserPainLevelByTimePeriod
+  getMealsByPainLevel, updateUser, changePassword, getUserPainLevelByTimePeriod,
+  getAveragePainLevelFromMeals,
 } = require('../service/user');
 const { MealTracker } = require('../models/MealTracker');
 
@@ -421,7 +422,7 @@ exports.getUserPainLevelByTimePeriodHandler = async (req, res) => {
       return res.status(200).json(respBody);
     }
 
-    const painLevel = await getUserPainLevelByTimePeriod(allMeals, time);
+    const painLevel = getUserPainLevelByTimePeriod(allMeals, time);
 
     if (!painLevel) {
       respBody.message = '[BadRequest] Error getting pain levels';
@@ -433,12 +434,54 @@ exports.getUserPainLevelByTimePeriodHandler = async (req, res) => {
 
     respBody.data = {
       labels,
-      painData
+      painData,
     };
   } catch (error) {
     respBody.message = '[BadRequest] Error getting pain level for user';
-
   }
   return res.status(200).json(respBody);
+};
 
+exports.getUserPainLevelAllMealTypesHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const mealsByType = await Promise.all([getMealsByType(_id, 'breakfast'), getMealsByType(_id, 'lunch'), getMealsByType(_id, 'dinner')]);
+
+    const breakfast = mealsByType.flat()[0];
+    const lunch = mealsByType.flat()[1];
+    const dinner = mealsByType.flat()[2];
+
+    const breakfastLevel = getAveragePainLevelFromMeals(breakfast);
+
+    if (!breakfastLevel) {
+      respBody.message = '[BadRequest] Error getting pain levels for breakfast';
+      return res.status(200).json(respBody);
+    }
+    const lunchLevel = getAveragePainLevelFromMeals(lunch);
+
+    if (!lunchLevel) {
+      respBody.message = '[BadRequest] Error getting pain levels for lunch';
+      return res.status(200).json(respBody);
+    }
+    const dinnerLevel = getAveragePainLevelFromMeals(dinner);
+
+    if (!dinnerLevel) {
+      respBody.message = '[BadRequest] Error getting pain levels for dinner';
+      return res.status(200).json(respBody);
+    }
+
+    respBody.success = true;
+    respBody.data = {
+      labels: ['breakfast', 'lunch', 'dinner'],
+      painData: [breakfastLevel, lunchLevel, dinnerLevel],
+    };
+  } catch (error) {
+    respBody.message = '[BadRequest] Error getting pain level for user';
+  }
+  return res.status(200).json(respBody);
 };

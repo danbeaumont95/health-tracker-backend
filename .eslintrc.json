@@ -9,7 +9,7 @@
     "plugin:cypress/recommended"
   ],
   "parserOptions": {
-    "ecmaVersion": "latest",
+    "ecmaVersion": "latest"
   },
   "rules": {}
   // "globals": {

@@ -26,7 +26,7 @@ exports.getAllDatesBetweenTimePeriod = (timePeriod, now) => {
   const nbDays = now.diff(timePeriod, 'days') + 1;
 
   const result = [...Array(nbDays).keys()]
-    .map(i => (timePeriod.clone().add(i, 'd').startOf('day').format()));
+    .map((i) => (timePeriod.clone().add(i, 'd').startOf('day').format()));
 
   return result;
 };
