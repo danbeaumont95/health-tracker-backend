@@ -1,11 +1,13 @@
+/* eslint-disable no-sequences */
+/* eslint-disable no-return-assign */
 const mongoose = require('mongoose');
 const { omit, get } = require('lodash');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const moment = require('moment');
 const { User } = require('../models/User');
 const { UserSession } = require('../models/UserSession');
 const { decode, signJwt } = require('../utils/jwt');
 const { MealTracker } = require('../models/MealTracker');
-const moment = require('moment');
 const { returnDateIfBetween2Dates, getAllDatesBetweenTimePeriod } = require('../utils/helpers');
 
 exports.getUser = async (_id) => {
@@ -177,19 +179,23 @@ exports.updateUser = async (_id, details) => {
   }
 };
 
-exports.getUserPainLevelByTimePeriod = async (allMeals, time) => {
+exports.getUserPainLevelByTimePeriod = (allMeals, time) => {
   try {
     const { meals } = allMeals;
-    const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd') : time === 'month' ? moment().subtract(1, 'month') : moment().subtract(1, 'y');
+    // eslint-disable-next-line no-nested-ternary
+    const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd')
+      : time === 'month' ? moment().subtract(1, 'month').add(1, 'd')
+        : moment().subtract(1, 'y').add(1, 'd');
     const now = moment();
 
-    const mealsInTimePeriod = meals.filter((el) => (returnDateIfBetween2Dates(timePeriod, now, el.date)));
+    const mealsInTimePeriod = meals
+      .filter((el) => (returnDateIfBetween2Dates(timePeriod, now, el.date)));
 
     const datesBetweenTimePeriodAndDate = getAllDatesBetweenTimePeriod(timePeriod, now);
 
-    const painLevelPerDayObject = datesBetweenTimePeriodAndDate.reduce((acc, curr) => (acc[curr] = 0, acc), {});
+    const painLevelPerDayObject = datesBetweenTimePeriodAndDate
+      .reduce((acc, curr) => (acc[curr] = 0, acc), {});
 
-    // Need to get timestamp of each day in time period, then map through and get average pain level for that day
     mealsInTimePeriod.map((el) => (painLevelPerDayObject[moment(el.date).startOf('day').format()] += el.painLevel));
 
     const dates = mealsInTimePeriod.map((el) => {
@@ -197,9 +203,9 @@ exports.getUserPainLevelByTimePeriod = async (allMeals, time) => {
       return input.startOf('day').format();
     });
 
-    const occurrences = dates.reduce(function (acc, curr) {
-      return acc[curr] ? ++acc[curr] : acc[curr] = 1, acc;
-    }, {});
+    const occurrences = dates
+      // eslint-disable-next-line no-plusplus
+      .reduce((acc, curr) => (acc[curr] ? ++acc[curr] : acc[curr] = 1, acc), {});
 
     Object.entries(occurrences).map((el) => (painLevelPerDayObject[el[0]] /= el[1]));
 
@@ -207,6 +213,8 @@ exports.getUserPainLevelByTimePeriod = async (allMeals, time) => {
   } catch (error) {
     console.error(error, 'error');
   }
-
-
 };
+
+exports.getAveragePainLevelFromMeals = (meals) => (Math.round((meals
+  .map((el) => el.painLevel).reduce((a, b) => a + b, 0) / meals.length) * 100) / 100
+);
