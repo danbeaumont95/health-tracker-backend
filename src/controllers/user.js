@@ -3,6 +3,7 @@ const {
   getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals, getMealsByType,
   getMealsByPainLevel, updateUser, changePassword, getUserPainLevelByTimePeriod,
   getAveragePainLevelFromMeals,
+  getMealsLoggedByTimePeriod,
 } = require('../service/user');
 const { MealTracker } = require('../models/MealTracker');
 
@@ -480,6 +481,37 @@ exports.getUserPainLevelAllMealTypesHandler = async (req, res) => {
       labels: ['breakfast', 'lunch', 'dinner'],
       painData: [breakfastLevel, lunchLevel, dinnerLevel],
     };
+  } catch (error) {
+    respBody.message = '[BadRequest] Error getting pain level for user';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.getMealsLoggedByTimePeriodHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const { time } = req.params;
+
+    if (time !== 'week' && time !== 'month' && time !== 'year') {
+      respBody.message = '[BadRequest] Invalid time period';
+      return res.status(200).json(respBody);
+    }
+
+    const allMeals = await MealTracker.findOne({ user: _id });
+
+    if (!allMeals) {
+      respBody.message = '[BadRequest] Error finding meals';
+      return res.status(200).json(respBody);
+    }
+    const { meals } = allMeals;
+    const mealsInTimePeriod = getMealsLoggedByTimePeriod(time, meals);
+    respBody.success = true;
+    respBody.data = mealsInTimePeriod.length;
   } catch (error) {
     respBody.message = '[BadRequest] Error getting pain level for user';
   }
