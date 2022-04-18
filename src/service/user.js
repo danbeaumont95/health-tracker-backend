@@ -230,3 +230,13 @@ exports.getMealsLoggedByTimePeriod = (time, meals) => {
     .filter((el) => (returnDateIfBetween2Dates(timePeriod, now, el.date)));
   return mealsInTimePeriod;
 };
+
+exports.getMealCausingMostPain = (meals) => {
+  const foodsWithHighPainLevel = meals.filter((el) => el.painLevel > 7).map((el) => el.food).flat();
+
+  return foodsWithHighPainLevel.reduce(
+    (a, b, i, arr) => (arr
+      .filter((v) => v === a).length >= arr.filter((v) => v === b).length ? a : b),
+    null,
+  );
+};
