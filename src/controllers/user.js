@@ -4,6 +4,7 @@ const {
   getMealsByPainLevel, updateUser, changePassword, getUserPainLevelByTimePeriod,
   getAveragePainLevelFromMeals,
   getMealsLoggedByTimePeriod,
+  getMealCausingMostPain,
 } = require('../service/user');
 const { MealTracker } = require('../models/MealTracker');
 
@@ -513,7 +514,36 @@ exports.getMealsLoggedByTimePeriodHandler = async (req, res) => {
     respBody.success = true;
     respBody.data = mealsInTimePeriod.length;
   } catch (error) {
-    respBody.message = '[BadRequest] Error getting pain level for user';
+    respBody.message = '[BadRequest] Error getting amount of meals for time period';
+  }
+  return res.status(200).json(respBody);
+};
+
+exports.getMealCausingMostPainHandler = async (req, res) => {
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  try {
+    const { _id } = req.user;
+    const allMeals = await MealTracker.findOne({ user: _id });
+
+    if (!allMeals) {
+      respBody.message = '[BadRequest] Error finding meals';
+      return res.status(200).json(respBody);
+    }
+    const { meals } = allMeals;
+    const mostCommonFoodWithHighPainLevel = await getMealCausingMostPain(meals);
+
+    if (!mostCommonFoodWithHighPainLevel) {
+      respBody.message = '[BadRequest] Error finding food with high pain level';
+      return res.status(200).json(respBody);
+    }
+    respBody.success = true;
+    respBody.data = { mostCommonFoodWithHighPainLevel };
+  } catch (error) {
+    respBody.message = '[BadRequest] Error getting meal showing most pain';
   }
   return res.status(200).json(respBody);
 };

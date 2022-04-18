@@ -4,7 +4,7 @@ const {
   addAreaToWorkOnHandler, addMealHandler, getallMealsHandler, getMealsByTypeHandler,
   getAllMealsByPainLevelHandler, getMeHandler, refreshTokenHandler, updateDetailsHandler,
   updatePasswordHandler, getUserPainLevelByTimePeriodHandler, getUserPainLevelAllMealTypesHandler,
-  getMealsLoggedByTimePeriodHandler,
+  getMealsLoggedByTimePeriodHandler, getMealCausingMostPainHandler,
 } = require('../controllers/user');
 const { createUserSessionSchema } = require('../schema/user');
 const { validateRequest } = require('../middleware/validateRequest');
@@ -28,5 +28,6 @@ router.put('/details/password', [requiresUser], updatePasswordHandler);
 router.get('/meals/pain/:time', [requiresUser], getUserPainLevelByTimePeriodHandler);
 router.get('/meals/type/pain', [requiresUser], getUserPainLevelAllMealTypesHandler);
 router.get('/meals/amount/:time', [requiresUser], getMealsLoggedByTimePeriodHandler);
+router.get('/meals/worstPain', [requiresUser], getMealCausingMostPainHandler);
 
 module.exports = router;
