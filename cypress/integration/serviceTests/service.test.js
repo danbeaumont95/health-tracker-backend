@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 import 'babel-polyfill';
 
-const { getAveragePainLevelFromMeals, getUserPainLevelByTimePeriod } = require('../../../src/service/user');
+const { getAveragePainLevelFromMeals, getUserPainLevelByTimePeriod, getMealCausingMostPain } = require('../../../src/service/user');
 
 describe('getAveragePainLevelFromMeals', () => {
   it('returns average pain level for all painLevels in array', () => {
@@ -129,5 +129,87 @@ describe('getUserPainLevelByTimePeriod', () => {
 
     const objectKeys = Object.keys(painLevelPerTimePeriod);
     expect(objectKeys.length).to.equal(365);
+  });
+});
+
+describe('getMealCausingMostPain', () => {
+  it('returns most common element in array', () => {
+    const foodArray = [
+      {
+        food: ['duck', 'rice', 'sweet and sour sauce'],
+        painLevel: 4,
+      },
+      {
+        food: ['smoothie'],
+        painLevel: 2,
+      },
+      {
+        food: ['chicken', 'rice'],
+        painLevel: 4,
+      },
+      {
+        food: ['smoothie'],
+        painLevel: 1,
+      },
+      {
+        food: ['burgers', 'chips'],
+        painLevel: 9,
+      },
+      {
+        food: ['peri wings', 'fris'],
+        painLevel: 5,
+      },
+      {
+        food: ['smoothie'],
+        painLevel: 1,
+      },
+      {
+        food: ['chicken'],
+        painLevel: 2,
+      },
+      {
+        food: ['burgers', 'chips'],
+        painLevel: 7,
+      },
+      {
+        food: ['pizza'],
+        painLevel: 6,
+      },
+      {
+        food: ['curry'],
+        painLevel: 8,
+      },
+      {
+        food: ['rice'],
+        painLevel: 4,
+      },
+      {
+        food: ['curry', 'rice', 'lamb chops'],
+        painLevel: 8,
+      },
+      {
+        food: ['curry', 'rice', 'naan bread'],
+        painLevel: 9,
+      },
+    ];
+    const numberArray = [
+      {
+        food: [1, 2, 3, 3, 9],
+        painLevel: 8,
+      },
+      {
+        food: [2, 3, 3, 9, 9],
+        painLevel: 9,
+      },
+      {
+        food: [9, 9, 9, 9],
+        painLevel: 7,
+      },
+    ];
+    const food = getMealCausingMostPain(foodArray);
+    const numbers = getMealCausingMostPain(numberArray);
+
+    expect(food).to.equal('curry');
+    expect(numbers).to.equal(3);
   });
 });
