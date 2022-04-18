@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-sequences */
 /* eslint-disable no-return-assign */
 const mongoose = require('mongoose');
@@ -218,3 +219,14 @@ exports.getUserPainLevelByTimePeriod = (allMeals, time) => {
 exports.getAveragePainLevelFromMeals = (meals) => (Math.round((meals
   .map((el) => el.painLevel).reduce((a, b) => a + b, 0) / meals.length) * 100) / 100
 );
+
+exports.getMealsLoggedByTimePeriod = (time, meals) => {
+  const timePeriod = time === 'week' ? moment().subtract(1, 'w').add(1, 'd')
+    : time === 'month' ? moment().subtract(1, 'month').add(1, 'd')
+      : moment().subtract(1, 'y').add(1, 'd');
+
+  const now = moment();
+  const mealsInTimePeriod = meals
+    .filter((el) => (returnDateIfBetween2Dates(timePeriod, now, el.date)));
+  return mealsInTimePeriod;
+};
