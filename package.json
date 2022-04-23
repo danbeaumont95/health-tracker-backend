@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "apollo-server-express": "^3.6.7",
+    "aws-sdk": "^2.1120.0",
     "babel-polyfill": "^6.26.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -25,6 +26,7 @@
     "moment": "^2.29.2",
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.9",
+    "multiparty": "^4.2.3",
     "yup": "^0.32.11"
   },
   "devDependencies": {
