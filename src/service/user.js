@@ -240,3 +240,17 @@ exports.getMealCausingMostPain = (meals) => {
     null,
   );
 };
+
+exports.updateUserProfilePhoto = async (user, data) => {
+  const { _id } = user;
+  const { Location } = data;
+  const newUser = await User.findByIdAndUpdate({ _id }, {
+    $set: {
+      profilePicture: Location,
+    },
+  }, {
+    new: true,
+  }).lean();
+
+  return newUser;
+};

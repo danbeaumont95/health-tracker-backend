@@ -1,13 +1,16 @@
 const { get } = require('lodash');
+const multiparty = require('multiparty');
+const aws = require('aws-sdk');
+const { uniqueId } = require('lodash');
+const fs = require('fs');
 const {
   getUser, createUser, getAllUsers, createUserSession, addMeal, getAllMeals, getMealsByType,
   getMealsByPainLevel, updateUser, changePassword, getUserPainLevelByTimePeriod,
   getAveragePainLevelFromMeals,
   getMealsLoggedByTimePeriod,
-  getMealCausingMostPain,
+  getMealCausingMostPain, updateUserProfilePhoto,
 } = require('../service/user');
 const { MealTracker } = require('../models/MealTracker');
-
 const { signJwt } = require('../utils/jwt');
 const { checkIfDetailsChanged } = require('../utils/helpers');
 const { validatePassword } = require('../service/user');
@@ -546,4 +549,75 @@ exports.getMealCausingMostPainHandler = async (req, res) => {
     respBody.message = '[BadRequest] Error getting meal showing most pain';
   }
   return res.status(200).json(respBody);
+};
+
+const s3 = new aws.S3({
+  accessKeyId: process.env.S3_ACCESS_KEY,
+  secretAccessKey: process.env.S3_ACCESS_SECRET,
+  region: process.env.S3_REGION,
+});
+
+const upload = (buffer, name) => {
+  const params = {
+    ACL: 'public-read',
+    Body: buffer,
+    Bucket: process.env.S3_BUCKET_NAME,
+    Key: `${name}`,
+  };
+
+  return s3.upload(params).promise();
+};
+
+const generateSuffix = (type) => {
+  switch (type) {
+    case 'image/jpeg':
+      return 'jpg';
+    case 'image/png':
+      return 'png';
+    default:
+      return '';
+  }
+};
+
+exports.addProfilePhotoHandler = async (req, res) => {
+  const form = new multiparty.Form();
+  const respBody = {
+    success: false,
+    message: '',
+    data: {},
+  };
+  const user = get(req, 'user');
+  try {
+    form.parse(req, async (error, fields, files) => {
+      if (error) {
+        return res.status(500).send(error);
+      }
+      try {
+        const { path } = files.file[0];
+
+        const buffer = fs.readFileSync(path);
+
+        const uuid = uniqueId();
+
+        const suffix = generateSuffix(files.file[0].headers['content-type']);
+
+        // eslint-disable-next-line no-underscore-dangle
+        const fileName = `users/${user._id}/profilePhoto_${uuid}.${suffix}`;
+
+        const data = await upload(buffer, fileName);
+
+        const updatedUser = await updateUserProfilePhoto(user, data);
+
+        respBody.success = true;
+        respBody.data = updatedUser;
+
+        return res.status(200).json(respBody);
+      } catch (e) {
+        respBody.message = '[BadRequest] Error adding profile photo';
+        return res.status(500).send(respBody);
+      }
+    });
+  } catch (error) {
+    respBody.message = '[BadRequest] Error adding profile photo';
+  }
 };
