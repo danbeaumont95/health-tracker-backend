@@ -85,7 +85,6 @@ const createAccessToken = ({
   user,
   session,
 }) => {
-  // Build and return the new access token
   const accessToken = signJwt(
     // eslint-disable-next-line no-underscore-dangle
     { ...user, session: session._id },
