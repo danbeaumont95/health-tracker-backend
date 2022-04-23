@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 
 const { privateKey } = process.env;
-
 const { publicKey } = process.env;
 
 const signJwt = (object, options) => jwt.sign(object, privateKey, options);

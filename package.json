@@ -5,11 +5,15 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon --config nodemon.json app.js",
-    "test": "cypress open"
+    "test": "cypress open",
+    "start": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "14.18.1"
+  },
   "dependencies": {
     "apollo-server-express": "^3.6.7",
     "aws-sdk": "^2.1120.0",
