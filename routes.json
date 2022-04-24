@@ -1,0 +1,446 @@
+{
+  "/api": {
+    "GET /": {
+      "description": "Returns all apis"
+    },
+    "/user": {
+      "GET /": {
+        "description": "Returns all users",
+        "example response": {
+          "success": true,
+          "message": "",
+          "data": [
+            {
+              "_id": "6244c3e3ac81aeed5970db9a",
+              "email": "test@hotmail.coms",
+              "firstName": "Dan",
+              "lastName": "Beaumont",
+              "password": "$2b$10$v/0V8C4LG2YPielcVNKxGexjTrCY5l51ul1l1VdQYt5QYWXW/9YPm",
+              "profilePicture": "Test",
+              "areasToWorkOn": [
+                "Health",
+                "Mental"
+              ],
+              "createdAt": "2022-03-30T20:56:03.379Z",
+              "updatedAt": "2022-04-13T19:40:40.305Z",
+              "__v": 0,
+              "phoneNumber": "1"
+            }
+          ]
+        }
+      },
+      "POST /": {
+        "description": "Creates a new user",
+        "example post body": {
+          "email": "email@hotmail.com",
+          "firstName": "Dan",
+          "lastName": "Beaumont",
+          "password": "password",
+          "profilePicture": "Test",
+          "areasToWorkOn": [
+            "Health"
+          ],
+          "phoneNumber": "123"
+        },
+        "example response body": {
+          "success": true,
+          "message": "",
+          "data": {
+            "email": "email@hotmail.com",
+            "firstName": "Dan",
+            "lastName": "Beaumont",
+            "password": "$2b$10$ABKiwddR3wSUsFEq8XFLsObH53AqLjuAGz6M2mC4DiY5/TdPDEgzC",
+            "profilePicture": "Test",
+            "areasToWorkOn": [
+              "Health"
+            ],
+            "phoneNumber": 123,
+            "_id": "6251e966751dbe82805cd82e",
+            "createdAt": "2022-04-09T20:15:34.594Z",
+            "updatedAt": "2022-04-09T20:15:34.594Z",
+            "__v": 0
+          }
+        }
+      },
+      "GET /:id": {
+        "description": "Returns user by ID",
+        "example response": {
+          "success": true,
+          "message": "",
+          "data": {
+            "_id": "6255d369e90d08cdd8567704",
+            "email": "email@hotmail.com",
+            "firstName": "firstName",
+            "lastName": "lastName",
+            "password": "$2b$10$g.g5BY1hGIMOWLs4logoZu4IHa71rW/o/NVCvwd25z7b7gYgV.kku",
+            "areasToWorkOn": [],
+            "phoneNumber": "123",
+            "createdAt": "2022-04-12T19:30:49.786Z",
+            "updatedAt": "2022-04-12T20:28:25.359Z",
+            "__v": 0
+          }
+        }
+      },
+      "/profile": {
+        "GET /me": {
+          "description": "Returns the logged in user",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": {
+              "_id": "6255d369e90d08cdd8567704",
+              "email": "email@hotmail.com",
+              "firstName": "Dan",
+              "lastName": "Beaumont",
+              "password": "$2b$10$g.g5BY1hGIMOWLs4logoZu4IHa71rW/o/NVCvwd25z7b7gYgV.kku",
+              "areasToWorkOn": [],
+              "phoneNumber": "123",
+              "createdAt": "2022-04-12T19:30:49.786Z",
+              "updatedAt": "2022-04-23T20:37:36.053Z",
+              "__v": 0,
+              "profilePicture": "https://dan-beaumont-health-tracker.s3.eu-west-2.amazonaws.com/users/6255d369e90d08cdd8567704/profilePhoto_2.jpg"
+            }
+          }
+        },
+        "PUT /photo": {
+          "description": "Updates the logged in users profile photo",
+          "example post body": {
+            "multipart form": {
+              "file": "img123.jpeg"
+            }
+          },
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": {
+              "_id": "6255d369e90d08cdd8567704",
+              "email": "email@hotmail.com",
+              "firstName": "Dan",
+              "lastName": "Beaumont",
+              "password": "$2b$10$g.g5BY1hGIMOWLs4logoZu4IHa71rW/o/NVCvwd25z7b7gYgV.kku",
+              "areasToWorkOn": [],
+              "phoneNumber": "123",
+              "createdAt": "2022-04-12T19:30:49.786Z",
+              "updatedAt": "2022-04-23T15:01:25.548Z",
+              "__v": 0,
+              "profilePicture": "https://dan-beaumont-health-tracker.s3.eu-west-2.amazonaws.com/users/6255d369e90d08cdd8567704/profilePhoto_1.jpg"
+            }
+          }
+        }
+      },
+      "/session": {
+        "POST /": {
+          "description": "Creates user session/logs in user",
+          "example post body": {
+            "email": "email@hotmail.com",
+            "password": "test"
+          },
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": {
+              "accessToken": "access123token",
+              "refreshToken": "refresh123token",
+              "_id": "6255d369e90d08cdd8567704"
+            }
+          }
+        },
+        "GET /refresh": {
+          "description": "Refreshes users access token",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "newAccessToken": "access123token"
+          }
+        }
+      },
+      "/meal": {
+        "POST /": {
+          "description": "Adds a new meal",
+          "example post body": {
+            "mealType": "dinner",
+            "meal": [
+              "curry",
+              "rice",
+              "naan bread"
+            ],
+            "painLevel": 9
+          },
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "[Success] Meal added",
+            "data": {}
+          }
+        },
+        "GET /:type": {
+          "description": "Gets meal type type",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": [
+              [
+                {
+                  "mealType": "dinner",
+                  "food": [
+                    "duck",
+                    "rice",
+                    "sweet and sour sauce"
+                  ],
+                  "date": "2022-04-13T19:53:13.071Z",
+                  "painLevel": 4
+                },
+                {
+                  "mealType": "dinner",
+                  "food": [
+                    "burgers",
+                    "chips"
+                  ],
+                  "date": "2022-04-15T21:16:35.463Z",
+                  "painLevel": 9
+                }
+              ]
+            ]
+          }
+        },
+        "GET /pain/:pain": {
+          "description": "Gets all meal by pain type",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": [
+              [
+                {
+                  "mealType": "dinner",
+                  "food": [
+                    "Cheese"
+                  ],
+                  "date": "2022-04-06T20:18:42.693Z",
+                  "painLevel": 2
+                },
+                {
+                  "mealType": "dinner",
+                  "food": [
+                    "Cheese"
+                  ],
+                  "date": "2022-04-06T20:18:50.324Z",
+                  "painLevel": 2
+                },
+                {
+                  "mealType": "breakfast",
+                  "food": [
+                    "toast"
+                  ],
+                  "date": "2022-04-06T20:33:20.336Z",
+                  "painLevel": 2
+                }
+              ]
+            ]
+          }
+        }
+      },
+      "/meals": {
+        "GET /all": {
+          "description": "Gets all meals by user",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": [
+              {
+                "mealType": "dinner",
+                "food": [
+                  "duck",
+                  "rice",
+                  "sweet and sour sauce"
+                ],
+                "date": "2022-04-13T19:53:13.071Z",
+                "painLevel": 4
+              },
+              {
+                "mealType": "breakfast",
+                "food": [
+                  "smoothie"
+                ],
+                "date": "2022-04-13T19:53:27.603Z",
+                "painLevel": 2
+              },
+              {
+                "mealType": "lunch",
+                "food": [
+                  "chicken",
+                  "rice"
+                ],
+                "date": "2022-04-13T19:53:38.662Z",
+                "painLevel": 4
+              }
+            ]
+          }
+        },
+        "GET /pain/:time": {
+          "description": "Gets user pain level in time period",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": {
+              "labels": [
+                "2022-04-11T00:00:00+01:00",
+                "2022-04-12T00:00:00+01:00",
+                "2022-04-13T00:00:00+01:00",
+                "2022-04-14T00:00:00+01:00",
+                "2022-04-15T00:00:00+01:00",
+                "2022-04-16T00:00:00+01:00",
+                "2022-04-17T00:00:00+01:00"
+              ],
+              "painData": [
+                0,
+                0,
+                3.33,
+                0,
+                5,
+                0,
+                5
+              ]
+            }
+          }
+        },
+        "GET /type/pain": {
+          "description": "Gets average pain level for each meal type",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": {
+              "labels": [
+                "breakfast",
+                "lunch",
+                "dinner"
+              ],
+              "painData": [
+                1.5,
+                4.5,
+                6.5
+              ]
+            }
+          }
+        },
+        "GET /amount/:time": {
+          "description": "Gets amount of meals logged in time period",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": 14
+          }
+        },
+        "GET /worstPain": {
+          "description": "Gets user meal thats caused highest pain level",
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": {
+              "mostCommonFoodWithHighPainLevel": "curry"
+            }
+          }
+        }
+      },
+      "/details": {
+        "PUT /area": {
+          "description": "Adds area to work on",
+          "example post body": {
+            "area": "Mental"
+          },
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "[Success] Mental added to your profile",
+            "data": {}
+          }
+        },
+        "PUT /update": {
+          "description": "Updates user details",
+          "example post body": {
+            "firstName": "Dan",
+            "lastName": "Beaumont",
+            "email": "email@hotmail.com",
+            "phoneNumber": "123"
+          },
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "",
+            "data": {
+              "_id": "6251e966751dbe82805cd82e",
+              "email": "email@hotmail.com",
+              "firstName": "Dan",
+              "lastName": "Beaumont",
+              "password": "$2b$10$ABKiwddR3wSUsFEq8XFLsObH53AqLjuAGz6M2mC4DiY5/TdPDEgzC",
+              "profilePicture": "Test",
+              "areasToWorkOn": [
+                "Health"
+              ],
+              "phoneNumber": "123",
+              "createdAt": "2022-04-09T20:15:34.594Z",
+              "updatedAt": "2022-04-09T21:30:32.613Z",
+              "__v": 0
+            }
+          }
+        },
+        "PUT /password": {
+          "description": "Updates users password",
+          "example post body": {
+            "originalPassword": "test1234",
+            "newPassword": "test"
+          },
+          "headers": {
+            "authorization": "Bearer ${token}"
+          },
+          "example response": {
+            "success": true,
+            "message": "[Success] Successfully changed password",
+            "data": {}
+          }
+        }
+      }
+    }
+  },
+  "/info": {
+    "GET /": {
+      "description": "Returns api info"
+    }
+  }
+}
