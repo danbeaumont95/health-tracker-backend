@@ -28,6 +28,7 @@ mongoose.connect(dbUri, { useNewUrlParser: true })
     const server = app.listen(port, () => {
       console.log(`Server started on port ${port}`);
     });
+
     router.get('/', async (req, res) => res.send(routes));
 
     router.use('/user', userRouter);
